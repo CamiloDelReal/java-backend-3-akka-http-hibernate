@@ -1,0 +1,5 @@
+FROM openjdk:17-slim
+COPY build/libs/user-management-service-1.0-SNAPSHOT-all.jar user-management-service-1.0-SNAPSHOT-all.jar
+ADD https://github.com/ufoscout/docker-compose-wait/releases/download/2.9.0/wait /wait
+RUN chmod +x /wait
+CMD /wait && java -jar /user-management-service-1.0-SNAPSHOT-all.jar
