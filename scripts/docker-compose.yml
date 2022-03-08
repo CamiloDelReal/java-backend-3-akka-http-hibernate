@@ -1,0 +1,42 @@
+version: "3.8"
+
+services:
+
+  database:
+    image: mysql
+    mem_limit: 700m
+    hostname: database
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: users_management
+      MYSQL_ROOT_PASSWORD: root
+    networks:
+      - javabackend3
+
+  usersmanagementservice:
+    image: dockersentinel/user-management-service
+    mem_limit: 700m
+    depends_on:
+      - database
+    environment:
+      WAIT_HOSTS: database:3306
+      DATABASE_HOST: database
+      DATABASE_PORT: 3306
+      DATABASE_USERNAME: root
+      DATABASE_PASSWORD: root
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+    ports:
+      - "8080:8080"
+      - "4848:4848"
+    hostname: usersmanagementservice
+    networks:
+      - javabackend3
+
+networks:
+  javabackend3:
