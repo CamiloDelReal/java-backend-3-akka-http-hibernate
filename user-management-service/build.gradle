@@ -1,5 +1,9 @@
+import com.github.jengelman.gradle.plugins.shadow.transformers.AppendingTransformer
+
 plugins {
     id 'java'
+    id 'application'
+    id "com.github.johnrengelman.shadow" version "7.0.0"
 }
 
 group 'org.xapps.services'
@@ -7,6 +11,16 @@ version '1.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
+}
+
+shadowJar {
+    append 'reference.conf'
+    append 'version.conf'
+    with jar
+}
+
+application {
+    mainClass = 'org.xapps.services.Main'
 }
 
 def versions = [
