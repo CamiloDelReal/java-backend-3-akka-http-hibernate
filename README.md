@@ -5,6 +5,7 @@ REST service to manage users with CRUD operations, using Akka Http. This is a si
 - Users
   * CRUD operations
 - Hibernate
+- Akka Http
 - JWT Authentication and Authorization
 - MySQL database
 - Postman queries
