@@ -30,7 +30,7 @@ public class UserRepository extends Repository<User, Long> {
         return user;
     }
 
-    public User getByIdAndEmail(Long id, String email) {
+    public User getByNotIdAndEmail(Long id, String email) {
         Session session = sessionFactory.openSession();
         session.beginTransaction();
         TypedQuery<User> query = session.createQuery("SELECT u FROM users u WHERE u.id != :id AND u.email = :email", User.class);

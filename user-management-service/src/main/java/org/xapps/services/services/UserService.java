@@ -215,7 +215,7 @@ public class UserService extends AbstractBehavior<UserService.Command> {
     private Behavior<Command> update(UpdateCommand command) {
         User user = userRepository.read(command.id);
         if (user != null) {
-            User duplicity = userRepository.getByIdAndEmail(command.id, command.user.getEmail());
+            User duplicity = userRepository.getByNotIdAndEmail(command.id, command.user.getEmail());
             if (duplicity == null) {
                 user.setEmail(command.user.getEmail());
                 if (command.user.getPassword() != null) {
