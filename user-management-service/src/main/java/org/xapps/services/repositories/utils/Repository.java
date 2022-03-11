@@ -35,8 +35,6 @@ public class Repository<T, I> {
                 if (columnAnnotation != null) {
                     idFieldNameByAnnotation = columnAnnotation.name();
                     if (idFieldNameByAnnotation == null || idFieldNameByAnnotation.isEmpty() || idFieldNameByAnnotation.isBlank()) {
-                        idFieldNameByAnnotation = null;
-                    } else {
                         idFieldNameByAnnotation = entityFields[i].getName();
                     }
                 } else {
