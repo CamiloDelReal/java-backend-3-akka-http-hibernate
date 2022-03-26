@@ -2,7 +2,7 @@
 echo [!] Packaging User Management Service
 cd ../user-management-service/
 gradleErr=0
-./gradlew clean build -x test || gradleErr=1
+./gradlew clean build shadowJar -x test || gradleErr=1
 if [ $gradleErr == 0 ]
 then 
     echo [+] User Management Service successfully packaged 
