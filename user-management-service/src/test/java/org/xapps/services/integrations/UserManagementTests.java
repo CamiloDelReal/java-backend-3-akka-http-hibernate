@@ -39,19 +39,6 @@ public class UserManagementTests  extends JUnitRouteTest {
     }
 
     @Test
-    public void testCalculatorAdd() throws JsonProcessingException, InterruptedException {
-        Login login = new Login("root@gmail.com", "123456");
-        appRoute.run(
-                HttpRequest.POST("/users/login")
-                    .withEntity(ContentTypes.APPLICATION_JSON, objectMapper.writeValueAsString(login))
-            )
-            .assertStatusCode(StatusCodes.OK);
-    }
-
-
-
-
-    @Test
     public void loginRoot_success() throws JsonProcessingException {
         Login login = new Login("root@gmail.com", "123456");
         Authentication authentication = appRoute.run(
