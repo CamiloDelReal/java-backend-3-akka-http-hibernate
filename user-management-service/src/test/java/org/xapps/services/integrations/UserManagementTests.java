@@ -9,8 +9,6 @@ import akka.http.javadsl.model.StatusCodes;
 import akka.http.javadsl.testkit.JUnitRouteTest;
 import akka.http.javadsl.testkit.TestRoute;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,18 +20,15 @@ import org.xapps.services.services.UserService;
 import org.xapps.services.services.requests.Login;
 import org.xapps.services.services.responses.Authentication;
 
-import java.net.http.HttpHeaders;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class UserManagementTests  extends JUnitRouteTest {
 
     private ObjectMapper objectMapper = new ObjectMapper();
-    private ActorSystem system = ActorSystem.create(UserService.create(), "gfg");
+    private ActorSystem system = ActorSystem.create(UserService.create(), "UserManagementTests");
     private UserRoutes userRoutes = new UserRoutes(system, system);
     private TestRoute appRoute = testRoute(userRoutes.routes());
 

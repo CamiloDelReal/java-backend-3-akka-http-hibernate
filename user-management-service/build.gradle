@@ -33,7 +33,7 @@ def versions = [
     hibernate: "5.6.5.Final",
     mysql: "8.0.25",
     junit: "4.13.2",
-    testng: "7.7.0"
+    junitJupiter: "5.8.1"
 ]
 
 dockerCompose {
@@ -65,6 +65,5 @@ dependencies {
     testImplementation "com.typesafe.akka:akka-actor-testkit-typed_${versions.scalaBinary}:${versions.akka}"
     testImplementation "com.typesafe.akka:akka-stream-testkit_${versions.scalaBinary}:${versions.akka}"
     testImplementation "junit:junit:${versions.junit}"
-
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    testImplementation "org.junit.jupiter:junit-jupiter-api:${versions.junitJupiter}"
 }
