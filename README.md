@@ -9,8 +9,6 @@ REST service to manage users with CRUD operations, using Akka Http. This is a si
 - JWT Authentication and Authorization
 - MySQL database
 - Postman queries
+- Integration tests
 - Package scripts (jar and docker image)
 - Docker compose script for deployment
-
-### ToDoS
-- Tests

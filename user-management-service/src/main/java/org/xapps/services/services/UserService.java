@@ -39,6 +39,13 @@ public class UserService extends AbstractBehavior<UserService.Command> {
         private static final long serialVersionUID = 32432483742934L;
     }
 
+    public record RolesCommand(
+            ActorRef<RolesResponse> replyTo
+    ) implements Command {
+        @Serial
+        private static final long serialVersionUID = 39983483742934L;
+    }
+
     public record LoginCommand(
             Login login,
             ActorRef<LoginResponse> replyTo
@@ -108,6 +115,7 @@ public class UserService extends AbstractBehavior<UserService.Command> {
     public Receive<Command> createReceive() {
         return newReceiveBuilder()
                 .onMessage(SeedCommand.class, this::seedDatabase)
+                .onMessage(RolesCommand.class, this::roles)
                 .onMessage(LoginCommand.class, this::login)
                 .onMessage(CreateCommand.class, this::create)
                 .onMessage(ReadAllCommand.class, this::readAll)
@@ -138,7 +146,14 @@ public class UserService extends AbstractBehavior<UserService.Command> {
             );
             userRepository.create(administrator);
         }
+        System.out.println("APPLOGGER - db seeded");
 
+        return Behaviors.same();
+    }
+
+    private Behavior<Command> roles(RolesCommand command) {
+        List<Role> roles = roleRepository.readAll();
+        command.replyTo.tell(new RolesResponse(ResponseType.OK, roles));
         return Behaviors.same();
     }
 
@@ -189,6 +204,7 @@ public class UserService extends AbstractBehavior<UserService.Command> {
             }
             user.setRoles(roles);
             user = userRepository.create(user);
+            user.setPassword("<<protected>>");
             command.replyTo.tell(new UserResponse(ResponseType.OK, user));
         } else {
             command.replyTo.tell(new UserResponse(ResponseType.EMAIL_NO_AVAILABLE));
@@ -197,7 +213,10 @@ public class UserService extends AbstractBehavior<UserService.Command> {
     }
 
     private Behavior<Command> readAll(ReadAllCommand command) {
-        List<User> users = userRepository.readAll();
+        List<User> users = userRepository.readAll().stream().map(it -> {
+            it.setPassword("<<protected>>");
+            return it;
+        }).toList();
         command.replyTo.tell(new UsersResponse(ResponseType.OK, users));
         return Behaviors.same();
     }

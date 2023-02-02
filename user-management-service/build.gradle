@@ -4,6 +4,7 @@ plugins {
     id 'java'
     id 'application'
     id "com.github.johnrengelman.shadow" version "7.0.0"
+    id "com.avast.gradle.docker-compose" version "0.16.11"
 }
 
 group 'org.xapps.services'
@@ -31,8 +32,15 @@ def versions = [
     logback: "1.2.10",
     hibernate: "5.6.5.Final",
     mysql: "8.0.25",
-    junit: "4.13.2"
+    junit: "4.13.2",
+    testng: "7.7.0"
 ]
+
+dockerCompose {
+    isRequiredBy(test)
+    useComposeFiles = ['src/test/resources/docker-compose.yml']
+    includeDependencies = true
+}
 
 dependencies {
     implementation platform("com.typesafe.akka:akka-http-bom_${versions.scalaBinary}:${versions.akkaHttp}")
@@ -55,5 +63,8 @@ dependencies {
 
     testImplementation "com.typesafe.akka:akka-http-testkit_${versions.scalaBinary}"
     testImplementation "com.typesafe.akka:akka-actor-testkit-typed_${versions.scalaBinary}:${versions.akka}"
+    testImplementation "com.typesafe.akka:akka-stream-testkit_${versions.scalaBinary}:${versions.akka}"
     testImplementation "junit:junit:${versions.junit}"
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
 }

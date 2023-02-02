@@ -21,10 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.xapps.services.entities.User;
 import org.xapps.services.services.UserService;
 import org.xapps.services.services.requests.Login;
-import org.xapps.services.services.responses.LoginResponse;
-import org.xapps.services.services.responses.Response;
-import org.xapps.services.services.responses.UserResponse;
-import org.xapps.services.services.responses.UsersResponse;
+import org.xapps.services.services.responses.*;
 import org.xapps.services.services.utils.PropertiesProvider;
 
 import java.time.Duration;
@@ -47,6 +44,36 @@ public class UserRoutes {
         this.scheduler = actorSystem.scheduler();
         this.objectMapper = new ObjectMapper();
         this.propertiesProvider = PropertiesProvider.getInstance();
+    }
+
+    private CompletableFuture<HttpResponse> roles() {
+        CompletableFuture<HttpResponse> response = new CompletableFuture<>();
+        CompletionStage<RolesResponse> rolesResponseFuture = AskPattern.ask(userServiceActor, me -> new UserService.RolesCommand(me), Duration.ofSeconds(5), scheduler);
+        rolesResponseFuture.whenComplete((rolesResponse, throwable) -> {
+            if (throwable != null) {
+                log.error("Exception received", throwable);
+                response.complete(HttpResponse.create().withStatus(StatusCodes.INTERNAL_SERVER_ERROR));
+            } else {
+                switch (rolesResponse.type()) {
+                    case OK -> {
+                        try {
+                            String data = objectMapper.writeValueAsString(rolesResponse.roles());
+                            response.complete(HttpResponse.create().withStatus(StatusCodes.OK).withEntity(ContentTypes.APPLICATION_JSON, data));
+                        } catch (JsonProcessingException ex) {
+                            log.error("Exception captured", ex);
+                            response.complete(HttpResponse.create().withStatus(StatusCodes.INTERNAL_SERVER_ERROR));
+                        }
+                    }
+                    case UNAUTHORIZED -> {
+                        response.complete(HttpResponse.create().withStatus(StatusCodes.UNAUTHORIZED));
+                    }
+                    default -> {
+                        response.complete(HttpResponse.create().withStatus(StatusCodes.INTERNAL_SERVER_ERROR));
+                    }
+                }
+            }
+        });
+        return response;
     }
 
     private CompletableFuture<HttpResponse> loginUser(Login loginRequest) {
@@ -90,6 +117,7 @@ public class UserRoutes {
                             .build();
                     DecodedJWT jwt = verifier.verify(token);
                     User principal = objectMapper.readValue(jwt.getSubject(), User.class);
+                    System.out.println("AppLogger - JWT Logged In  " + principal);
                     return inner.apply(Optional.of(principal));
                 } catch (JWTVerificationException | JsonProcessingException ex) {
                     log.error("Exception captured", ex);
@@ -248,6 +276,7 @@ public class UserRoutes {
     public Route routes() {
         return pathPrefix("users", () ->
                 concat(
+                        path("roles", () -> get(() -> completeWithFuture(roles()))),
                         path("login", () -> post(() -> entity(Jackson.unmarshaller(Login.class), login -> completeWithFuture(loginUser(login))))),
                         pathEnd(() -> concat(
                                 get(() -> authenticateWithJwt(principal -> {
@@ -271,7 +300,7 @@ public class UserRoutes {
                                 })),
                                 put(() -> authenticateWithJwt(principal -> {
                                     return entity(Jackson.unmarshaller(User.class), user -> {
-                                        return authorize(() -> principal.isPresent() && (principal.get().isAdministrator() || Objects.equals(principal.get().getId(), userId)), () -> {
+                                        return authorize(() -> principal.isPresent() && (principal.get().isAdministrator() || (Objects.equals(principal.get().getId(), userId) && !user.isAdministrator())), () -> {
                                             return completeWithFuture(updateUser(userId, user));
                                         });
                                     });
